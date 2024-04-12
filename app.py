@@ -7,7 +7,7 @@ import pandas as pd
 load_dotenv()
 mongo_url=os.getenv("MONGO_CONN_STRING")
 
-client = MongoClient(mongo_url)
+client = MongoClient("mongodb+srv://g2hack:g2hack%40123@g2.0fzaw48.mongodb.net/?retryWrites=true&w=majority")
 db = client['g2hack']  
 collection = db['unavailableProducts']
 
