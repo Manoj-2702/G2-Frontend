@@ -2,15 +2,27 @@ import streamlit as st
 import datetime
 import os
 from dotenv import load_dotenv
+from os import getenv
+from dotenv import load_dotenv
 from pymongo import MongoClient
 import pandas as pd
+import google.generativeai as genai
 load_dotenv()
 mongo_url=os.getenv("MONGO_CONN_STRING")
+GOOGLE_TOKEN = getenv("GOOGLE_API_KEY")
 
+# Configure Google Generative AI
+genai.configure(api_key=GOOGLE_TOKEN)
 client = MongoClient("mongodb+srv://g2hack:g2hack%40123@g2.0fzaw48.mongodb.net/?retryWrites=true&w=majority")
 db = client['g2hack']  
 collection = db['unavailableProducts']
 
+def call_gemini_api(message_data):
+    """ Fetches product information using Google's generative AI. """
+    model = genai.GenerativeModel('gemini-pro')
+    prompt = f"""{message_data} Generate the product information in a descriptive manner."""
+    response = model.generate_content(prompt)
+    return response.text
 
 def main():
     st.title("Try Catch Devs")
@@ -41,13 +53,23 @@ def main():
     #             for result in results]
 
     count = len(products)
-    st.write(f"Number of unique products on the selected date: {count}")
 
-    if products:
-        df = pd.DataFrame(products)
-        st.table(df)
-    else:
+    st.write(f"Number of unique products on the selected date: {len(unique_products)}")
+    
+    for index, (product_name, description) in enumerate(unique_products.items()):
+        with st.expander(f"Product Name: {product_name}"):
+            st.text(f"Description: {description}")  
+            user_input_key = f"{product_name}_{index}"  # Unique key for each input field
+            user_input = st.text_input("Enter your query here", key=user_input_key)
+            button_key = f"button_{index}"  # Unique key for each button
+            if st.button('Search', key=button_key):
+                response = call_gemini_api(product_name)
+    
+                st.text(response)
+
+    if not unique_products:
         st.write("No products found for the selected date.")
+
 
 
 if __name__ == "__main__":
