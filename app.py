@@ -27,16 +27,9 @@ def main():
             "$lt": end_of_day
         }
     }
-    pipeline = [
-        {"$match": query},
-        {"$group": {
-            "_id": "$product_name",
-            "description": {"$first": "$desc"}
-        }},
-        {"$sort": {"_id": 1}}  # Sort by product name
-    ]
-    results = collection.aggregate(pipeline)
-    products = [{"Product Name": result["_id"], "Description": result.get("desc", "No description available")}
+    sort_order = {"product_name": -1}  # Sort by product name in descending order
+    results = collection.find(query).sort("product_name", -1)
+    products = [{"Product Name": result["product_name"], "Description": result.get("desc", "No description available")}
                 for result in results]
 
     count = len(products)
