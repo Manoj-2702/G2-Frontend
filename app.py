@@ -59,13 +59,6 @@ def main():
     for index, (product_name, description) in enumerate(unique_products.items()):
         with st.expander(f"Product Name: {product_name}"):
             st.text(f"Description: {description}")  
-            user_input_key = f"{product_name}_{index}"  # Unique key for each input field
-            user_input = st.text_input("Enter your query here", key=user_input_key)
-            button_key = f"button_{index}"  # Unique key for each button
-            if st.button('Search', key=button_key):
-                response = call_gemini_api(product_name)
-    
-                st.text(response)
 
     if not unique_products:
         st.write("No products found for the selected date.")
